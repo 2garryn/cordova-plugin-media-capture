@@ -1,3 +1,4 @@
+
 /*
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -31,6 +32,9 @@ enum CDVCaptureError {
     CAPTURE_NOT_SUPPORTED = 20
 };
 typedef NSUInteger CDVCaptureError;
+
+const NSInteger CAMERA_DEVICE_REAR = 0;
+const NSInteger CAMERA_DEVICE_FRONT = 1;
 
 @interface CDVImagePicker : UIImagePickerController
 {

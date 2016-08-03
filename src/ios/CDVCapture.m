@@ -222,6 +222,8 @@
     // options could contain limit, duration and mode
     // taking more than one video (limit) is only supported if provide own controls via cameraOverlayView property
     NSNumber* duration = [options objectForKey:@"duration"];
+    NSString* cameraDevice = [options objectForKey:@"duration"];
+    NSInteger cameraDevice = [[options objectForKey:@"camera"] intValue];
     NSString* mediaType = nil;
 
     if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
@@ -268,6 +270,19 @@
             // pickerController.cameraFlashMode = UIImagePickerControllerCameraFlashModeAuto;
         }
         // CDVImagePicker specific property
+        if ([pickerController respondsToSelector:@selector(cameraDevice)]) {
+          if(cameraDevice == CAMERA_DEVICE_REAR) {
+            if( [UIImagePickerController isCameraDeviceAvailable: UIImagePickerControllerCameraDeviceRear ])
+              {
+                pickerController.cameraDevice = UIImagePickerControllerCameraDeviceRear;
+              }
+          } else if(cameraDevice == CAMERA_DEVICE_FRONT) {
+            if( [UIImagePickerController isCameraDeviceAvailable: UIImagePickerControllerCameraDeviceFront ])
+              {
+                pickerController.cameraDevice = UIImagePickerControllerCameraDeviceFront;
+              }
+          }
+        }
         pickerController.callbackId = callbackId;
 
         [self.viewController presentViewController:pickerController animated:YES completion:nil];

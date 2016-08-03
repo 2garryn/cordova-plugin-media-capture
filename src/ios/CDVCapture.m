@@ -222,9 +222,9 @@
     // options could contain limit, duration and mode
     // taking more than one video (limit) is only supported if provide own controls via cameraOverlayView property
     NSNumber* duration = [options objectForKey:@"duration"];
-    NSString* cameraDevice = [options objectForKey:@"duration"];
     NSInteger cameraDevice = [[options objectForKey:@"camera"] intValue];
     NSString* mediaType = nil;
+    NSNumber* quality = [options objectForKey:@"quality"];
 
     if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
         // there is a camera, it is available, make sure it can do movies
@@ -252,6 +252,18 @@
         pickerController.delegate = self;
         pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
         pickerController.allowsEditing = NO;
+
+        // Set quality of captured video
+        if (quality) {
+          if ([quality intValue] < 33) {
+            pickerController.videoQuality = UIImagePickerControllerQualityTypeLow;
+          } else if ([quality intValue] < 66) {
+            pickerController.videoQuality = UIImagePickerControllerQualityTypeMedium;
+          } else {
+            pickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
+          }
+        }
+        
         // iOS 3.0
         pickerController.mediaTypes = [NSArray arrayWithObjects:mediaType, nil];
 
@@ -265,6 +277,27 @@
         // iOS 4.0
         if ([pickerController respondsToSelector:@selector(cameraCaptureMode)]) {
             pickerController.cameraCaptureMode = UIImagePickerControllerCameraCaptureModeVideo;
+            
+            NSNumber* quality = [options objectForKey:@"ios_quality"];
+
+            if ([quality isEqual:@("compression_none_640x480")]){ //Compression none
+                pickerController.videoQuality = UIImagePickerControllerQualityType640x480;
+            }
+            else if ([quality isEqual:@("compression_none_960x540")]){ //Compression none
+                pickerController.videoQuality = UIImagePickerControllerQualityTypeIFrame960x540;
+            }
+            else if ([quality isEqual:@("compression_none_1280x720")]){ //Compression none
+                pickerController.videoQuality = UIImagePickerControllerQualityTypeIFrame1280x720;
+            }
+            else if ([quality isEqual:@("high")]){ //Compression low
+                pickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
+            }
+            else if ([quality isEqual:@("medium")]){ //Compression medium
+                pickerController.videoQuality = UIImagePickerControllerQualityTypeMedium;
+            }
+            else if ([quality isEqual:@("low")]){ //strongest compression, resolution 192x144
+                pickerController.videoQuality = UIImagePickerControllerQualityTypeLow;
+            }
             // pickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
             // pickerController.cameraDevice = UIImagePickerControllerCameraDeviceRear;
             // pickerController.cameraFlashMode = UIImagePickerControllerCameraFlashModeAuto;
@@ -293,13 +326,12 @@
 {
     // save the movie to photo album (only avail as of iOS 3.1)
 
-    /* don't need, it should automatically get saved
+    
      NSLog(@"can save %@: %d ?", moviePath, UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(moviePath));
     if (&UIVideoAtPathIsCompatibleWithSavedPhotosAlbum != NULL && UIVideoAtPathIsCompatibleWithSavedPhotosAlbum(moviePath) == YES) {
         NSLog(@"try to save movie");
         UISaveVideoAtPathToSavedPhotosAlbum(moviePath, nil, nil, nil);
         NSLog(@"finished saving movie");
-    }*/
     // create MediaFile object
     NSDictionary* fileDict = [self getMediaDictionaryFromPath:moviePath ofType:nil];
     NSArray* fileArray = [NSArray arrayWithObject:fileDict];
